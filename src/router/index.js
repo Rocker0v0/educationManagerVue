@@ -1,22 +1,53 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
 
 Vue.use(VueRouter)
+const HomeChildOne =()=> import ('../views/HomeRight/HomeChildOne.vue')
+const HomeChildTwo =()=> import ('../views/HomeRight/HomeChildTwo.vue')
+const HomeChildThree =()=> import ('../views/HomeRight/HomeChildThree.vue')
+const HomeChildFour =()=> import ('../views/HomeRight/HomeChildFour.vue')
+const HomeChildSetting =()=> import ('../views/HomeRight/HomeChildSetting.vue')
+const Login = () => import ('../views/Login.vue')
+const Home=()=> import ('../views/Home.vue')
 
 const routes = [
   {
-    path: '/',
-    name: 'Home',
-    component: Home
+    path: '',
+    redirect: '/Login'
   },
   {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    path: '/Home',
+    redirect: '/Home/HomeChildOne'
+  },
+  {
+    path: '/Home',
+    component:Home,
+    children:[
+     {
+      path: "HomeChildOne",
+      component: HomeChildOne
+     },
+     {
+      path: "HomeChildTwo",
+      component: HomeChildTwo
+     },
+     {
+      path: "HomeChildThree",
+      component: HomeChildThree
+     },
+     {
+      path: "HomeChildFour",
+      component: HomeChildFour
+     },
+     {
+      path: "HomeChildSetting",
+      component: HomeChildSetting
+     }
+    ]
+  },
+  {
+    path:'/Login',
+    component: Login
   }
 ]
 
