@@ -1,15 +1,18 @@
 <template>
-  <div class="mainPage">
+  <div
+    class="mainPage"
+    :style="{ background: 'url(' + img.url + ')', backgroundSize: '100% 100%' }"
+  >
     <div class="login">
       <div class="title">
-        <u><i>欢迎登录学生信息管理系统</i></u>
+        <u><i>欢迎登录信息管理系统</i></u>
       </div>
       <div class="userImageDiv">
         <img src="contact.ico" />
         <input
           class="user"
           placeholder="请输入用户名"
-          @input="username = $event.target.value"
+          v-model="username"
           type="text"
         />
       </div>
@@ -18,7 +21,7 @@
         <input
           class="password"
           placeholder="请输入密码"
-          @input="password = $event.target.value"
+          v-model="password"
           type="password"
         />
       </div>
@@ -47,12 +50,19 @@
           ></verify-code-fun>
         </div>
       </div>
+      <div style="font-size: 20px">
+        <el-radio-group v-model="radio">
+          <el-radio :label="3">学生</el-radio>
+          <el-radio :label="6">老师</el-radio>
+          <el-radio :label="9">管理员</el-radio>
+        </el-radio-group>
+      </div>
       <div>
         <div @click="userInfoSubmit" class="submit boom">
           <span>登录</span>
         </div>
       </div>
-      <div class="tip" :class="{activity:activity}">
+      <div class="tip" :class="{ activity: activity }">
         {{ tip }}
       </div>
       <div class="brief">
@@ -65,28 +75,38 @@
 
 <script>
 import VerifyCodeFun from "../components/common/verifyCodeFun";
-import { getVerifyCode,getStatueCode } from "../network/login";
+import {
+  getVerifyCode,
+  getStatueCode,
+  setSession,
+  getSession,
+} from "../network/login";
 export default {
   name: "login",
   data() {
     return {
-      identifyCode: '',
+      identifyCode: "",
       contentWidth: null,
       contentHeight: null,
       getIdentifyCode: "获取验证码",
-      username: '',
-      password: '',
-      thisIdentifyCode: '',
-      tip: '',
-      activity:false,
-      status:1,
+      username: null,
+      password: null,
+      thisIdentifyCode: "",
+      tip: "",
+      activity: true,
+      status: null,
+      radio: 3,
+      img: {
+        url: require("../assets/image/login.jpeg"),
+        name: "bg",
+      },
     };
   },
   components: { VerifyCodeFun },
   methods: {
     getRandomCodeClick(e) {
       this.getIdentifyCode = "点击换一张";
-      this.getRandomCode();
+      // this.getRandomCode();
       this.getVerifyCodeByServer();
     },
     getRandomCode() {
@@ -103,51 +123,105 @@ export default {
         this.identifyCode = res.toString();
       });
     },
-    getStatueCodeServer(obj){
-      getStatueCode(obj).then(res=>{
-        console.log(res)
-      })
+
+    //获取登录成功或者失败的状态码
+    getStatueCodeByService(userName, password, code) {
+      return getStatueCode(userName, password, code);
     },
-    userInfoSubmit() {
-      if(this.username != '' && this.password != '' && this.thisIdentifyCode != ''){
-          //网络请求
-          if(this.thisIdentifyCode!=this.identifyCode){
-            this.tip = "验证码错误"
-          }else{
-            let user = new Object
-            user.userName = this.username
-            user.passWord = this.password
-            this.getStatueCodeServer(user)
-            if(this.status == 1){
-              this.$router.push({path:'/Home'})
-            }
+    //登陆成功，设置session
+    setSessionByServer(username, password, code) {
+      return setSession(username, password, code);
+    },
+    //获取session
+    getSessionByServer(code) {
+      getSession(code).then((res) => {
+        console.log(res);
+        if (res.data != null) {
+          switch (code) {
+            case 3:
+              this.username = res.data.SUser;
+              this.password = res.data.SPass;
+              break;
+            case 6:
+              this.username = res.data.TUSER;
+              this.password = res.data.TPASS;
+              break;
+            case 9:
+              this.username = res.data.USERNAME;
+              this.password = res.data.USERPWD;
+              break;
           }
-      }else{
-        this.activity = true
-        if(this.username == ''){
-          this.tip = "请输入用户名！"
-        }else if(this.password == ''){
-          this.tip = "请输入密码！"
-        }else{
-          this.tip = "请输入验证码!"
+        } else {
+          this.username = null;
+          this.password = null;
+        }
+      });
+    },
+    //提交anxios请求
+    userInfoSubmit() {
+      if (
+        this.username != "" &&
+        this.password != "" &&
+        this.thisIdentifyCode != ""
+      ) {
+        //网络请求
+        if (this.thisIdentifyCode != this.identifyCode) {
+          this.tip = "验证码错误";
+        } else {
+          this.getStatueCodeByService(
+            this.username,
+            this.password,
+            this.radio
+          ).then((res) => {
+            this.status = res.statue;
+            if (this.status == 1) {
+              this.setSessionByServer(
+                this.username,
+                this.password,
+                this.radio
+              ).then((res) => {
+                switch (this.radio) {
+                  case 3:
+                    this.$router.push({ path: "/Student" });
+                    break;
+                  case 6:
+                    this.$router.push({ path: "/Teacher" });
+                    break;
+                  case 9:
+                    this.$router.push({ path: "/Home" });
+                    break;
+                }
+              });
+            } else {
+              this.tip = res.message;
+            }
+          });
+        }
+      } else {
+        if (this.username == "") {
+          this.tip = "请输入用户名！";
+        } else if (this.password == "") {
+          this.tip = "请输入密码！";
+        } else {
+          this.tip = "请输入验证码!";
         }
       }
-
-
-
-      
-      setTimeout(()=>{
-        this.tip = ''
-      },4000)
+      setTimeout(() => {
+        this.tip = "";
+      }, 4000);
     },
   },
   mounted() {
     this.contentWidth = this.$refs.RandomCode.offsetWidth;
     this.contentHeight = this.$refs.RandomCode.offsetHeight;
-    this.getRandomCode();
+    //加载界面，获取验证码
+    this.getRandomCodeClick();
+    this.getSessionByServer(this.radio);
   },
-  created() {
-    this.getVerifyCodeByServer();
+  watch: {
+    radio: function (newVal, oldVal) {
+      this.getSessionByServer(this.radio);
+    },
   },
 };
 </script>
@@ -170,7 +244,6 @@ button:focus {
 .mainPage {
   width: 100%;
   height: 1009px;
-  background: url("/login.jpeg");
   background-repeat: no-repeat;
   background-size: 100% 100%;
   background-attachment: fixed;
@@ -191,7 +264,7 @@ button:focus {
 }
 .login > div {
   width: 85%;
-  height: 15%;
+  height: 12%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -201,15 +274,15 @@ button:focus {
   outline: none;
   border: none;
   width: 100%;
-  height: 48%;
+  height: 60%;
 }
 .Yanzheng {
   flex-basis: 14%;
-  max-height: 30%;
+  max-height: 35%;
 }
 #RandomCode {
-  width: 32%;
-  height: 50%;
+  width: 35%;
+  height: 80%;
   background-color: white;
   display: flex;
   justify-content: center;
@@ -227,7 +300,7 @@ button:focus {
 }
 .submit {
   width: 100%;
-  height: 48%;
+  height: 60%;
   background: rgba(13, 104, 241, 0.8);
   display: flex;
   justify-content: center;
@@ -288,7 +361,7 @@ a {
 .tip {
   max-height: 4%;
 }
-.activity{
+.activity {
   color: red;
 }
 </style>

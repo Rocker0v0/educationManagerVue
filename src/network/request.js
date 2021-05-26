@@ -1,11 +1,11 @@
 import axios from 'axios'
-
+axios.defaults.withCredentials = true
 export function request(config) {
   // 1.创建实例
   const instance = axios.create({
-    baseURL: "http://localhost:8080/Rocker",
+    baseURL: "http://localhost:8081/Rocker",
+    method:"POST"
   })
-
   // 2.axios拦截器
   // 2.1  请求拦截的作用
   instance.interceptors.request.use(config => {
@@ -20,7 +20,6 @@ export function request(config) {
   }, err => {
     console.log(err)
   })
-
   // 3.发送真正的网络请求
     return instance(config)
 }

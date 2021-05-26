@@ -1,21 +1,20 @@
 <template>
   <div class="s-canvas" ref="box">
-<!-- 
+    <!-- 
    canvas:直接使用标签内的width和height属性，就像一张图片，如果在css中进行了设置，会像图片那样进行拉升，所以不能在css中设置canvas的宽高
  -->
     <canvas
       id="s-canvas"
-      :width="contentWidth" :height="contentHeight"
+      :width="contentWidth"
+      :height="contentHeight"
     ></canvas>
-   </div>
+  </div>
 </template>
 <script>
 export default {
   name: "SIdentify",
-  data(){
-     return {
-
-     }
+  data() {
+    return {};
   },
   props: {
     identifyCode: {
@@ -24,11 +23,11 @@ export default {
     },
     fontSizeMin: {
       type: Number,
-      default: 25,
+      default: 28,
     },
     fontSizeMax: {
       type: Number,
-      default: 30,
+      default: 32,
     },
     backgroundColorMin: {
       type: Number,
@@ -136,7 +135,7 @@ export default {
     },
     drawDot(ctx) {
       // 绘制干扰点
-      for (let i = 0; i < 80; i++) {
+      for (let i = 0; i < 100; i++) {
         ctx.fillStyle = this.randomColor(0, 255);
         ctx.beginPath();
         ctx.arc(
@@ -153,9 +152,9 @@ export default {
   watch: {
     identifyCode() {
       this.$nextTick(function () {
-      this.drawPic();
-    })
-    }
+        this.drawPic();
+      });
+    },
   },
 };
 </script>

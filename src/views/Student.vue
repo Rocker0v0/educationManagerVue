@@ -1,12 +1,15 @@
 <template>
-  <div class="home">
+  <div class="students">
     <home-top-control :topTitle="topTitle" :code="code"></home-top-control>
     <div class="left_control">
-      <my-info :user="user" ></my-info>
+      <my-info :user="user" :sno="sno"></my-info>
       <choose-control :routAndTitle="routAndTitle"></choose-control>
     </div>
     <div class="contentIndex"></div>
     <div class="right_control">
+      <router-link to="/Student/StudentChildOne"></router-link>
+      <router-link to="/Student/StudentChildTwo"></router-link>
+      <router-link to="/Student/StudentChildThree"></router-link>
       <router-view />
     </div>
     <home-botton-control></home-botton-control>
@@ -20,67 +23,37 @@ import HomeTopControl from "../components/common/homeTopControl.vue";
 import MyInfo from "../components/common/myInfo.vue";
 import { getSession } from "../network/login";
 export default {
-  name: "home",
+  name: "students",
+
   data() {
     return {
       topTitle: "教务管理系统",
       routAndTitle: [
         {
-          path: "/Home/HomeChildOne",
-          title: "学生信息管理",
-          icon: "el-icon-user",
+          path: "/Student/StudentChildOne",
+          title: "我的课表",
+          icon: "el-icon-user-solid",
         },
         {
-          path: "/Home/HomeChildTwo",
-          title: "教师信息管理",
-          icon: "el-icon-s-custom",
-          
-        },
-        {
-          path: "/Home/HomeChildNine",
-          title: "班级信息管理 ",
-          icon: "el-icon-s-opportunity",
-        },
-        {
-          path: "/Home/HomeChildFive",
-          title: "学院信息管理 ",
-          icon: "el-icon-s-finance",
-        },
-        {
-          path: "/Home/HomeChildFour",
-          title: "课程信息管理",
-          icon: "el-icon-s-management",
-        },
-        {
-          path: "/Home/HomeChildSex",
-          title: "教室信息管理",
-          icon: "el-icon-s-home",
-        },
-        {
-          path: "/Home/HomeChildThree",
-          title: "统一选课管理",
-          icon: "el-icon-s-grid",
-        },
-        {
-          path: "/Home/HomeChildEight",
-          title: "学生成绩管理 ",
+          path: "/Student/StudentChildTwo",
+          title: "我的成绩",
           icon: "el-icon-s-data",
         },
         {
-          path: "/Home/HomeChildSeven",
-          title: "课程安排管理 ",
+          path: "/Student/StudentChildThree",
+          title: "我的选课",
+          icon: "el-icon-s-ticket",
+        },
+        {
+          path: "/Student/StudentChildFour",
+          title: "已选课程",
           icon: "el-icon-s-operation",
         },
       ],
-      code: 9,
+      code: 3,
       user: null,
+      sno: null,
     };
-  },
-  components: {
-    MyInfo,
-    ChooseControl,
-    HomeTopControl,
-    HomeBottonControl,
   },
   methods: {
     getSessionByService(index) {
@@ -93,20 +66,25 @@ export default {
       if (res.data == null) {
         this.$router.replace("/Login");
       } else {
-        this.user = res.data.USERNAME;
-        console.log(res.data);
-        // this.$store.commit("addUser",this.data)
+        this.user = res.name.SNAME;
+        this.sno = res.data.SUser;
       }
     });
-    if (this.$router.path != "/Home/welcome") {
-      this.$router.replace("/Home/welcome");
+    if (this.$route.path != "/Student/welcomeStudent") {
+      this.$router.push({ path: "/Student/welcomeStudent" });
     }
+  },
+  components: {
+    MyInfo,
+    ChooseControl,
+    HomeTopControl,
+    HomeBottonControl,
   },
 };
 </script>
 
 <style scoped>
-.home {
+.students {
   height: 100%;
   width: 80%;
   display: flex;
