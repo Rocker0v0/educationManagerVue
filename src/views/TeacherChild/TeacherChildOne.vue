@@ -83,7 +83,7 @@ export default {
         this.resClass_list = res.data;
         console.log(res);
         this.initClass_list = res.data;
-             this.week = "第1周"
+             this.week = ""
       });
     },
   },
@@ -108,7 +108,7 @@ export default {
           }
         });
       } else {
-        this.week = oldVal
+        this.week = "第1周"
         this.isWeek = false;
       }
     },
