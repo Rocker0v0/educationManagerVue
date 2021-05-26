@@ -115,6 +115,7 @@ export default {
       }
     },
     value: function (newVal, oldVal) {
+      this.week = null
       this.getStudentCourseByService(this.sno, newVal);
     },
   },
